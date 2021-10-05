@@ -1,0 +1,27 @@
+---
+title: "IDL Research Project"
+author: "Lamar Foster"
+date: "10/1/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(tidyr)
+```
+
+This data is from the Residential Building Stock Assessment [https://neea.org/resources/rbsa-ii-combined-database](RBSA) conducted in 2016-17. It includes a representative sample of single-family, Multi-family and manufactured homes gathered across the Northwest region. Whenever possible, data was collected in a similar manner as the 2011 – 2012 assessment to ensure continuity and comparability between the studies. Supporting documentation of the RBSA data can be found [https://neea.org/data/residential-building-stock-assessment](here). 
+
+
+```{r}
+ols_df <- read_csv("~/Desktop/DS Projects/RBSA-II-Combined-Database/One Line Summary.csv")
+dictionary_df <- read_csv("~/Desktop/DS Projects/RBSA-II-Combined-Database/DataDictionary.csv")
+demog <- read_csv("~/Desktop/DS Projects/RBSA-II-Combined-Database/SiteInterview_Demographics.csv")
+```
+
