@@ -7,34 +7,62 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+#clear memory
+rm(list = ls())
+#penalize excessive significant figures
+options(digits = 3)
+#preventing scientific notation
+options(scipen = 10)
 ```
 
 ```{r, message=FALSE}
-library(ggplot2)
-library(readr)
-library(dplyr)
-library(tidyr)
+#packages used in this analysis
+if(!require(readr)){
+    install.packages("readr", dependencies = TRUE)
+    library(readr)
+}
+if(!require(ggplot2)){
+    install.packages("ggplot2", dependencies = TRUE)
+    library(ggplot2)
+}
+if(!require(dplyr)){
+    install.packages("dplyr", dependencies = TRUE)
+    library(dplyr)
+}
+if(!require(tidyr)){
+    install.packages("tidyr", dependencies = TRUE)
+    library(tidyr)
+}
 ```
+
+---
 The Department of Housing and Urban Development (HUD) considers people spending more than 30% of their income on housing as housing burdened. Housing costs include rent, mortgage payement, property taxes, utilities, and housing insurance (Lin, 2018). There has recently been a spotlight on how energy prices, i.e. utilities, contribute to housing burden (Buylova, 2020). Energy bills of more than 6-10% of income is considered unaffordable (Hernandez & Bird, 2010; Heindl, 2015; Kontokosta et al., 2019). Previous research demonstrates energy cost burden disproportionately affect lower income households, largely because they are most at risk for living in substandard and inefficient housing (Hernandez & Phillips, 2015). Energy upgrades can  help alleviate enerrgy cost burden and potentially housing burden by saving a low-income multifamily household up to $1,500 per year per household (Kontokosta et al., 2019).
 
 Energy cost burden is a function of both income and energy consumption. Drehobl and Ross (2016) found that an average low-income household energy burden was 7.2%, which is higher than an average higher income household energy burden of 2.3%. Findings from an evaluation of a federal energy assistance program determiined that low-income households represent 92% of all households with energy burden of 10% (APPRISE, 2005). Federal Low-Income Home Energy Assistance Program (LIHEAP) designs its funding distribution mechanism based on energy burden levels. Income is used as the main qualifier for this program.
 
 Buyolva (2020) used two datasets: a household energy audit survey - the residential building stock assessment (RBSA) completed by the Northwest Energy Efficiency Association (NEEA) in 2017 and the American Community Survey (ACS) 2012-2017 5-year estimates data to investigate the dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption.
 
-
 Suggested Readings: 
 
 [Buylova, A. (2020). Spotlight on energy efficiency in Oregon: Investigating dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption. Energy Policy, 140, 111439.](https://www.sciencedirect.com/science/article/pii/S0301421520301920)
 
 [Kontokosta, C. E., Reina, V. J., & Bonczak, B. (2020). Energy cost burdens for low-income and minority households: Evidence from energy benchmarking and audit data in five US cities. Journal of the American Planning Association, 86(1), 89-105.](https://www.tandfonline.com/doi/full/10.1080/01944363.2019.1647446)
-
 ---
-This data is from the Residential Building Stock Assessment [(RBSA)](https://neea.org/resources/rbsa-ii-combined-database) conducted in 2016-17. It includes a representative sample of single-family, Multi-family and manufactured homes gathered across the Northwest region. Whenever possible, data was collected in a similar manner as the 2011 – 2012 assessment to ensure continuity and comparability between the studies. Supporting documentation of the RBSA data can be found [here](https://neea.org/data/residential-building-stock-assessment). 
 
+This data is from the Residential Building Stock Assessment [(RBSA)](https://neea.org/resources/rbsa-ii-combined-database) conducted in 2016-17. It includes a representative sample of single-family, Multi-family and manufactured homes gathered across the Northwest region. Supporting documentation of the RBSA data can be found [here](https://neea.org/data/residential-building-stock-assessment). 
+
+The RBSA database houses all data gathered during the study, including that for manufactured homes, single-family homes, multi-family residences, and multi-family buildings. Within the database, data are attributed to a Site or a Building. Building data include information collected for nonresidential portions of a multifamily building. Site data include information collected for the entirety of a single-family or manufactured home, and for residences visited at a multifamily building. The database denotes data associated with a Site by a CK_SiteID or PK_SiteID beginning with “SITE”; the database denotes data associated with a Building by a CK_SiteID or PK_SiteID beginning with “BLDG.”
+
+Each row in a table has a unique primary key (PK), making it possible to reference that specific object, and may include other relational keys (CKs) that make it possible to relate to other tables in the database. Most tables can be joined using the CK_SiteID and the CK_RoomID
 ```{r, message=FALSE, warning=FALSE}
+#Import the RBSA data frames of interest
+
 ols_df <- read_csv("RBSA-II-Combined-Database/One Line Summary.csv")
-dictionary_df <- read_csv("RBSA-II-Combined-Database/DataDictionary.csv")
 demog <- read_csv("RBSA-II-Combined-Database/SiteInterview_Demographics.csv")
+room_df <- read_csv("RBSA-II-Combined-Database/Room.csv")
+site_df <- read_csv("RBSA-II-Combined-Database/SiteDetail.csv")
+energyuse_df <- read_csv("RBSA-II-Combined-Database/SiteInterview_HomeEnergyUse.csv")
 ```
 
 
