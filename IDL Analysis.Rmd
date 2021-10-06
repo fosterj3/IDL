@@ -15,11 +15,12 @@ library(readr)
 library(dplyr)
 library(tidyr)
 ```
-The Department of Housing and Urban Development (HUD) considers people spending more than 30% of their income on housing as housing burdened. Housing costs include rent, mortgage payement, property taxes, utilities, and housing insurance (Lin, 2018). There has recently been a spotlight on how energy prices, i.e. utilities, contribute to housing burden (Buylova, 2020). Energy bills of more than 6-10% of income is considered unaffordable (Hernandez & Bird, 2010; Heindl, 2015; Kontokosta et al., 2019). Energy upgrades can  help alleviate housing burden by saving a low-income multifamily household up to $1,500 per year per household (Kontokosta et al., 2019).
+The Department of Housing and Urban Development (HUD) considers people spending more than 30% of their income on housing as housing burdened. Housing costs include rent, mortgage payement, property taxes, utilities, and housing insurance (Lin, 2018). There has recently been a spotlight on how energy prices, i.e. utilities, contribute to housing burden (Buylova, 2020). Energy bills of more than 6-10% of income is considered unaffordable (Hernandez & Bird, 2010; Heindl, 2015; Kontokosta et al., 2019). Previous research demonstrates energy cost burden disproportionately affect lower income households, largely because they are most at risk for living in substandard and inefficient housing (Hernandez & Phillips, 2015). Energy upgrades can  help alleviate enerrgy cost burden and potentially housing burden by saving a low-income multifamily household up to $1,500 per year per household (Kontokosta et al., 2019).
 
-Energy burden is a function of both income and energy consumption. Drehobl and Ross (2016) found that an average low-income household energy burden was 7.2%, which is higher than an average higher income household energy burden of 2.3%. Findings from an evaluation of a federal energy assistance program determiined that low-income households represent 92% of all households with energy burden of 10% (APPRISE, 2005). Federal Low-Income Home Energy Assistance Program (LIHEAP) designs its funding distribution mechanism based on energy burden levels. Income is used as the main qualifier for this program.
+Energy cost burden is a function of both income and energy consumption. Drehobl and Ross (2016) found that an average low-income household energy burden was 7.2%, which is higher than an average higher income household energy burden of 2.3%. Findings from an evaluation of a federal energy assistance program determiined that low-income households represent 92% of all households with energy burden of 10% (APPRISE, 2005). Federal Low-Income Home Energy Assistance Program (LIHEAP) designs its funding distribution mechanism based on energy burden levels. Income is used as the main qualifier for this program.
 
-Buyolva (2020) used two datasets: a household energy audit survey - the residential building stock assessment (RBSA) completed by the Northwest Energy Efficiency Association (NEEA) in 2017 and the American Community Survey (ACS) 2012-2017 5-year estimates data. 
+Buyolva (2020) used two datasets: a household energy audit survey - the residential building stock assessment (RBSA) completed by the Northwest Energy Efficiency Association (NEEA) in 2017 and the American Community Survey (ACS) 2012-2017 5-year estimates data to investigate the dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption.
+
 
 Suggested Readings: 
 
@@ -35,4 +36,18 @@ ols_df <- read_csv("RBSA-II-Combined-Database/One Line Summary.csv")
 dictionary_df <- read_csv("RBSA-II-Combined-Database/DataDictionary.csv")
 demog <- read_csv("RBSA-II-Combined-Database/SiteInterview_Demographics.csv")
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
