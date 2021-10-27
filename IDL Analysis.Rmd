@@ -73,6 +73,10 @@ if(!require(tidyr)){
     install.packages("tidyr", dependencies = TRUE)
     library(tidyr)
 }
+if(!require(skimr)){
+    install.packages("skimr", dependencies = TRUE)
+    library(skimr)
+}
 ```
 ---
 # Executive Summary 
@@ -101,27 +105,100 @@ The RBSA database houses data for manufactured homes, single-family homes, multi
 #Import the RBSA data frames of interest
 
 ols_df <- read_csv("RBSA-II-Combined-Database/One Line Summary.csv")
+
 demog <- read_csv("RBSA-II-Combined-Database/SiteInterview_Demographics.csv")
-room_df <- read_csv("RBSA-II-Combined-Database/Room.csv")
-site_df <- read_csv("RBSA-II-Combined-Database/SiteDetail.csv")
-energyuse_df <- read_csv("RBSA-II-Combined-Database/SiteInterview_HomeEnergyUse.csv")
+
+room_df <- read_csv("RBSA-II-Combined-Database/Room.csv") #has the area of different room in each residence
+
+site_df <- read_csv("RBSA-II-Combined-Database/SiteDetail.csv")  #redundant with ols_df
+
+energyuse_df <- read_csv("RBSA-II-Combined-Database/SiteInterview_HomeEnergyUse.csv") #has data on energy use and energy star appliances 
 ```
 
 Next Steps: 
 - Outline Data Description following Data Brief Template = DONE
-
+- Find parcel data for other counties in the Puget Sound Region 
 
 -Explore Data
-  - Make note of tables provided and what can be merged 
+  - Make note of tables provided and what can be merged = DONE 
   - Make note of size of the data = DONE 
-  -Merge Data 
-  -Select Variables of Interest 
+  -Merge Data = DONE 
+Select Variables of Interest 
+ -Variables from Buylova Paper: 
+  Housing variables:
+  1) type of housing 
+  2) year of construction
+  3) primary heating
+  4) number of bedrooms
+  Household characteristics: 
+  1) income
+  2) ownership
+  3) elderly - older than 65
+  4) children 
+  5) household size
 
 ```{r}
-
+#Merge ols_df to demog
+  ols_demog <- left_join(ols_df, demog, by = c("DB_SiteID" = "CK_SiteID"))
 ```
 
+```{r}
+# Only get sites in Puget Sound Region 
+pug_sound_ols <- ols_demog %>% 
+  filter(Region == "Puget Sound")
+```
 
+  
+```{r}
+#Explore the Puget Sound Data 
+sum(is.na((pug_sound_ols)))
+
+
+summary(pug_sound_ols)
+```
+Select Variables of Interest 
+ -Variables from Buylova Paper: 
+  Housing variables:
+  1) type of housing 
+  2) year of construction
+  3) primary heating
+  4) number of bedrooms
+  Household characteristics: 
+  1) income
+  2) ownership
+  3) elderly - older than 65
+  4) children 
+  5) household size
+```{r}
+#Select variables of interest 
+pug_short <- pug_sound_ols %>% 
+  select(`Cadmus ID`, Region, County, State, `Home Type - FMP Detailed`, `Home Type - Final`, `Year Built`,`Primary Heating System`, `Qty Bedrooms`,`Reported Income`, `Do you own or rent your home`, Ownership, `Qty Occupants Between 65 Years or Older`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants.x`, `Qty Occupants.y`)
+```
+Data Quality Dimensions to Assess
+
+1) Accuracy 
+  i) How well does a piece of information reflect reality?
+  
+2) Completenes 
+  i) Does it fulfill your expectations of what’s comprehensive?
+  
+3) Consistency 
+  i) Does information stored in one place match relevant data stored elsewhere?
+  
+4) Timeliness 
+  i) Is your information available when you need it?
+  
+5) Validity 
+  i) Is information in a specific format, does it follow business rules, or is it in an unusable format?
+  
+6) Uniqueness 
+  i) Is this the only instance in which this information appears in the database?
+
+```{r}
+#Check Missingness 
+sum(is.na(pug_short))
+colSums(is.na(pug_short))
+```
 
 
 
