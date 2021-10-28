@@ -172,7 +172,7 @@ Select Variables of Interest
 ```{r}
 #Select variables of interest 
 pug_short <- pug_sound_ols %>% 
-  select(`Cadmus ID`, Region, County, State, `Home Type - FMP Detailed`, `Home Type - Final`, `Year Built`,`Primary Heating System`, `Qty Bedrooms`,`Reported Income`, `Do you own or rent your home`, Ownership, `Qty Occupants Between 65 Years or Older`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants.x`, `Qty Occupants.y`)
+  select(`Cadmus ID`, State, County,Region, `Home Type - FMP Detailed`, `Home Type - Final`, `Year Built`,`Primary Heating System`, `Qty Bedrooms`,`Reported Income`, `Do you own or rent your home`, Ownership, `Qty Occupants Between 65 Years or Older`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants.x`, `Qty Occupants.y`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 1 and 5 Years`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants Between 11 and 18 Years`, `Qty Occupants Between 19 and 45 Years`, `Qty Occupants Between 46 and 64 Years`, `Qty Occupants Between 65 Years or Older`)
 ```
 Data Quality Dimensions to Assess
 
@@ -195,10 +195,39 @@ Data Quality Dimensions to Assess
   i) Is this the only instance in which this information appears in the database?
 
 ```{r}
-#Check Missingness 
+#Data Cleaning 
+
+## Check summary of data
+summary()
+
+## Missing values overall
 sum(is.na(pug_short))
+
+## Missing values by columns
 colSums(is.na(pug_short))
+
+##Turn Certain variables into factors 
+pug_short_clean <- pug_short %>% 
+  mutate(across(c(`Home Type - FMP Detailed`, `Primary Heating System`,`Home Type - Final`,`Reported Income`:Ownership),as.factor)) 
+
+# Check certain variables 
+summary(pug_short_clean$`Reported Income`) 
 ```
+
+There are zero NAs in the data set, however there are observations coded as "prefer not to say" and "unknown." The variables coded as "prefer not to say" and "unknown" will be recoded at NAs
+
+There are 27 unique "reported income."  Future researchers may want to consider a binary variable that denotes whether a household is making a low wage based on their annual income.
+
+Make age variable with three levels 
+  0 -18 
+  19-64
+  65 and older 
+
+Make another "Qty of Occupants" variable that is categorical with four levels 
+  one-person
+  two-person
+  three-person
+  four or more
 
 
 
