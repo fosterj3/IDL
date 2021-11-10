@@ -198,7 +198,7 @@ Data Quality Dimensions to Assess
 #Data Cleaning 
 
 ## Check summary of data
-summary()
+summary(pug_short)
 
 ## Missing values overall
 sum(is.na(pug_short))
@@ -206,12 +206,33 @@ sum(is.na(pug_short))
 ## Missing values by columns
 colSums(is.na(pug_short))
 
+# Change "prefer not say" and "Unkown" to NAs
+pug_short[pug_short == "Unknown" | pug_short == "Prefer not to say"] <- NA
+
 ##Turn Certain variables into factors 
 pug_short_clean <- pug_short %>% 
   mutate(across(c(`Home Type - FMP Detailed`, `Primary Heating System`,`Home Type - Final`,`Reported Income`:Ownership),as.factor)) 
 
-# Check certain variables 
-summary(pug_short_clean$`Reported Income`) 
+# Check certain variables for missingness 
+sum(is.na(pug_short_clean))
+sum(is.na(pug_short_clean$`Reported Income`))
+sum(is.na(pug_short_clean$Ownership))
+sum(is.na(pug_short_clean$`Do you own or rent your home`))
+sum(is.na(pug_short_clean$`Year Built`))
+
+#Transform a age variables to the following: 1) less than 1 to 5, 2) 6-18, 3) 19-64, 4) 65 and up
+pug_short_clean_age <- pug_short_clean %>% 
+  rowwise() %>% 
+  mutate(
+    age_zero_to_five = sum(`Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 1 and 5 Years`),
+    age_six_to_eighteen = sum(`Qty Occupants Between 6 and 10 Years`, `Qty Occupants Between 11 and 18 Years`),
+    age_nineteen_to_sixtyfour = sum(`Qty Occupants Between 19 and 45 Years`, `Qty Occupants Between 46 and 64 Years`),
+    age_sixtyfive_plus = `Qty Occupants Between 65 Years or Older`,
+    total_occupants = `Qty Occupants.x`)
+
+#Remove original age columns 
+pug_short_clean_age_short <- pug_short_clean_age %>% 
+  select(-c(13:21))
 ```
 
 There are zero NAs in the data set, however there are observations coded as "prefer not to say" and "unknown." The variables coded as "prefer not to say" and "unknown" will be recoded at NAs
