@@ -73,9 +73,9 @@ if(!require(tidyr)){
     install.packages("tidyr", dependencies = TRUE)
     library(tidyr)
 }
-if(!require(skimr)){
-    install.packages("skimr", dependencies = TRUE)
-    library(skimr)
+if(!require(janitor)){
+    install.packages("janitor", dependencies = TRUE)
+    library(janitor)
 }
 ```
 ---
@@ -153,16 +153,17 @@ pug_sound_ols <- ols_demog %>%
 #Explore the Puget Sound Data 
 sum(is.na((pug_sound_ols)))
 
-
 summary(pug_sound_ols)
 ```
 Select Variables of Interest 
  -Variables from Buylova Paper: 
+ 
   Housing variables:
   1) type of housing 
   2) year of construction
   3) primary heating
   4) number of bedrooms
+ 
   Household characteristics: 
   1) income
   2) ownership
@@ -172,7 +173,7 @@ Select Variables of Interest
 ```{r}
 #Select variables of interest 
 pug_short <- pug_sound_ols %>% 
-  select(`Cadmus ID`, State, County,Region, `Home Type - FMP Detailed`, `Home Type - Final`, `Year Built`,`Primary Heating System`, `Qty Bedrooms`,`Reported Income`, `Do you own or rent your home`, Ownership, `Qty Occupants Between 65 Years or Older`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants.x`, `Qty Occupants.y`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 1 and 5 Years`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants Between 11 and 18 Years`, `Qty Occupants Between 19 and 45 Years`, `Qty Occupants Between 46 and 64 Years`, `Qty Occupants Between 65 Years or Older`)
+  select(`Cadmus ID`, State, County,Region, `Home Type - FMP Detailed`, `Home Type - Final`, `Year Built`,`Primary Heating System`, `Qty Bedrooms`,`Reported Income`, `Do you own or rent your home`, Ownership, `Qty Occupants Between 65 Years or Older`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants.x`, `Qty Occupants.y`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 1 and 5 Years`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants Between 11 and 18 Years`, `Qty Occupants Between 19 and 45 Years`, `Qty Occupants Between 46 and 64 Years`, `Qty Occupants Between 65 Years or Older`, `Conditioned Area`, `Annual Electric Usage (kBtu)`)
 ```
 Data Quality Dimensions to Assess
 
@@ -195,7 +196,7 @@ Data Quality Dimensions to Assess
   i) Is this the only instance in which this information appears in the database?
 
 ```{r}
-#Data Cleaning 
+#Data Cleaning and wrangling 
 
 ## Check summary of data
 summary(pug_short)
@@ -211,7 +212,7 @@ pug_short[pug_short == "Unknown" | pug_short == "Prefer not to say"] <- NA
 
 ##Turn Certain variables into factors 
 pug_short_clean <- pug_short %>% 
-  mutate(across(c(`Home Type - FMP Detailed`, `Primary Heating System`,`Home Type - Final`,`Reported Income`:Ownership),as.factor)) 
+  mutate(across(c(`Home Type - FMP Detailed`, `Primary Heating System`,`Home Type - Final`,`Do you own or rent your home`:Ownership),as.factor)) 
 
 # Check certain variables for missingness 
 sum(is.na(pug_short_clean))
@@ -232,23 +233,65 @@ pug_short_clean_age <- pug_short_clean %>%
 
 #Remove original age columns 
 pug_short_clean_age_short <- pug_short_clean_age %>% 
-  select(-c(13:21))
+  select(-c(11,13:21,))
+
+#Make categorial variable for # of occupants 
+pug_short_occupant <- pug_short_clean_age_short %>% 
+  mutate(household_size = case_when(
+    total_occupants == 1 ~ "one-person",
+    total_occupants == 2 ~ "two people",
+    total_occupants == 3 ~ "three people",
+    total_occupants >= 4 ~ "four or more"))
+
+#Turn occupant cat into a factor 
+pug_short_occupant$household_size <- factor(pug_short_occupant$household_size, levels = c("one-person", "two people", "three people", "four or more"))
+levels(pug_short_occupant$household_size) # check levels for accuracy 
+
+# Make a binary children and elderly variable, elderly is anyone who is 65 and older, children is anyone 0-18 years old
+pug_short_elder <- pug_short_occupant %>% 
+  mutate(elderly = if_else(age_sixtyfive_plus >= 1, "yes", "no")) %>% 
+  mutate( children = if_else(age_zero_to_five | age_six_to_eighteen >= 1, "yes", "no"))
+
+#Set factor levels for elderly and children binary variables 
+pug_short_elder$elderly <- factor(pug_short_elder$elderly, levels = c("yes", "no"))
+pug_short_elder$children <- factor(pug_short_elder$children, levels = c("yes", "no"))
+
+#Change character variables to numeric 
+pug_short_elder$`Annual Electric Usage (kBtu)` <- as.numeric(pug_short_elder$`Annual Electric Usage (kBtu)`)
+pug_short_elder$`Conditioned Area` <- as.numeric(pug_short_elder$`Conditioned Area`)
+
+#Ceate EUI variable 
+pug_short_eui <- pug_short_elder %>% 
+  mutate(eui = `Annual Electric Usage (kBtu)`/`Conditioned Area`)
+
+summary(pug_short_eui$eui)
+summary(pug_short_eui$`Annual Electric Usage (kBtu)`)
+summary(pug_short_eui$`Conditioned Area`)
+
+#clean names 
+pug_eui <- clean_names(pug_short_eui)
 ```
 
-There are zero NAs in the data set, however there are observations coded as "prefer not to say" and "unknown." The variables coded as "prefer not to say" and "unknown" will be recoded at NAs
+```{r}
+#Visualize eui 
+pug_eui %>% 
+  ggplot(aes(eui,conditioned_area)) + geom_point() + stat_smooth(method = lm) + facet_wrap(~primary_heating_system)
+  
+```
+
+```{r}
+#model  
+lm(eui ~ conditioned_area, data = pug_eui)
+
+lm(eui ~ home_type_final + primary_heating_system + qty_bedrooms + elderly + children + household_size + ownership, data = pug_eui) %>% 
+  summary()
+```
+
 
 There are 27 unique "reported income."  Future researchers may want to consider a binary variable that denotes whether a household is making a low wage based on their annual income.
 
-Make age variable with three levels 
-  0 -18 
-  19-64
-  65 and older 
+They should do an imputation for the EUI, since 256 are missing (NA)
 
-Make another "Qty of Occupants" variable that is categorical with four levels 
-  one-person
-  two-person
-  three-person
-  four or more
 
 
 
