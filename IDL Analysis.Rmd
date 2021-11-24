@@ -46,7 +46,7 @@ High overview of what is available and how things can be merged. What variables/
 
 ## Section 3: Data assessment
 - What are the sensitivities and ethical considerations of working with this data?
-- What are the strengths and limitations of working with this dataset(s)?
+- What are the strengths and limitations of working with this data set(s)?
 - What are the strengths and limitations of the methods that were applied?
 - What elements in the data operationalize the key concepts and/or questions in the project?  
 
@@ -86,11 +86,11 @@ if(!require(janitor)){
 ```
 ---
 # Executive Summary
-This documentation outlines the preprocessing of RBSA data to reproduce the analytical data frame and model as described in the Buylova (2020) Spotlight on energy efficiency in Oregon article. Buyolva (2020) used two datasets: a household energy audit survey - the residential building stock assessment (RBSA) completed by the Northwest Energy Efficiency Association (NEEA) in 2017 and the American Community Survey (ACS) 2012-2017 5-year estimates data to investigate the dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption. This documentation is focused on preprocessing the RBSA data.
+This documentation outlines the preprocessing of RBSA data to reproduce the analytical data frame and model as described in the Buylova (2020) Spotlight on energy efficiency in Oregon article. Buyolva (2020) used two data sets: a household energy audit survey - the residential building stock assessment (RBSA) completed by the Northwest Energy Efficiency Association (NEEA) in 2017 and the American Community Survey (ACS) 2012-2017 5-year estimates data to investigate the dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption. This documentation is focused on preprocessing the RBSA data.
 
-The Department of Housing and Urban Development (HUD) considers people spending more than 30% of their income on housing as housing burdened. Housing costs include rent, mortgage payement, property taxes, utilities, and housing insurance (Lin, 2018). There has recently been a spotlight on how energy prices, i.e. utilities, contribute to housing burden (Buylova, 2020). Energy bills of more than 6-10% of income is considered unaffordable (Hernandez & Bird, 2010; Heindl, 2015; Kontokosta et al., 2019). Previous research demonstrates energy cost burden disproportionately affect lower income households, largely because they are most at risk for living in substandard and inefficient housing (Hernandez & Phillips, 2015). Energy upgrades can  help alleviate enerrgy cost burden and potentially housing burden by saving a low-income multifamily household up to $1,500 per year per household (Kontokosta et al., 2019).
+The Department of Housing and Urban Development (HUD) considers people spending more than 30% of their income on housing as housing burdened. Housing costs include rent, mortgage payment, property taxes, utilities, and housing insurance (Lin, 2018). There has recently been a spotlight on how energy prices, i.e. utilities, contribute to housing burden (Buylova, 2020). Energy bills of more than 6-10% of income is considered unaffordable (Hernandez & Bird, 2010; Heindl, 2015; Kontokosta et al., 2019). Previous research demonstrates energy cost burden disproportionately affect lower income households, largely because they are most at risk for living in substandard and inefficient housing (Hernandez & Phillips, 2015). Energy upgrades can  help alleviate energy cost burden and potentially housing burden by saving a low-income multifamily household up to $1,500 per year per household (Kontokosta et al., 2019).
 
-Energy cost burden is a function of both income and energy consumption. Drehobl and Ross (2016) found that an average low-income household energy burden was 7.2%, which is higher than an average higher income household energy burden of 2.3%. Findings from an evaluation of a federal energy assistance program determiined that low-income households represent 92% of all households with energy burden of 10% (APPRISE, 2005). Federal Low-Income Home Energy Assistance Program (LIHEAP) designs its funding distribution mechanism based on energy burden levels. Income is used as the main qualifier for this program.
+Energy cost burden is a function of both income and energy consumption. Drehobl and Ross (2016) found that an average low-income household energy burden was 7.2%, which is higher than an average higher income household energy burden of 2.3%. Findings from an evaluation of a federal energy assistance program determined that low-income households represent 92% of all households with energy burden of 10% (APPRISE, 2005). Federal Low-Income Home Energy Assistance Program (LIHEAP) designs its funding distribution mechanism based on energy burden levels. Income is used as the main qualifier for this program.
 
 Suggested Readings:
 
@@ -106,7 +106,7 @@ Suggested Readings:
 2) Discovered 
 3) Identified data frames of interest 
 
-This data is from the Residential Building Stock Assessment [(RBSA)](https://neea.org/resources/rbsa-ii-combined-database) conducted in 2016-17. It has 47 comma separated variable (csv) tabular datasets that includes a representative sample of 1,130 single-family, 230 multi-family and 550 manufactured homes gathered across the Northwest region. For the single-family component, participants are recruited based on a random selection of single-family residential USPS addresses. For the multi-family component, the study recruited multi-family buildings to participate in the study and then identify tenants in those buildings willing to participate. Two auditors performed each site visit. Audits lasted approximately two hours and covered all of the major components of the homes that can be linked to the household’s overall energy use, including: building envelope, HVAC systems, lighting, appliances, electronics, and water technologies. In addition, this audit data was combined with self-reported home characteristics and demographics data that were collected in the phone survey during the recruitment of on-site sample. Supporting documentation of the RBSA data can be found [here](https://neea.org/data/residential-building-stock-assessment).
+This data is from the Residential Building Stock Assessment [(RBSA)](https://neea.org/resources/rbsa-ii-combined-database) conducted in 2016-17. It has 47 comma separated variable (csv) tabular data sets that includes a representative sample of 1,130 single-family, 230 multi-family and 550 manufactured homes gathered across the Northwest region. For the single-family component, participants are recruited based on a random selection of single-family residential USPS addresses. For the multi-family component, the study recruited multi-family buildings to participate in the study and then identify tenants in those buildings willing to participate. Two auditors performed each site visit. Audits lasted approximately two hours and covered all of the major components of the homes that can be linked to the household’s overall energy use, including: building envelope, HVAC systems, lighting, appliances, electronics, and water technologies. In addition, this audit data was combined with self-reported home characteristics and demographics data that were collected in the phone survey during the recruitment of on-site sample. Supporting documentation of the RBSA data can be found [here](https://neea.org/data/residential-building-stock-assessment).
 
 The RBSA database is comprised of a 49 files: 47 csv files, one .txt ReadMe, and an excel spreadsheet with unique database values. One of the csv tables is a data dictionary that gives a description of the column names in each csv table. The size of the csv files ranges from 2 KB to 16.6 MB. The smallest table contains 11 columns and 14 rows/observations, while the largest table contains 249 columns and 15561 rows/observations. The ReadMe details updates and changes to the RBSA II Database; changes and updates are numbered and organized by date. Each row in a table has a unique primary key (PK), making it possible to reference that specific object, and may include other relational keys (CKs) that make it possible to relate to other tables in the database. Most tables can be joined using the CK_SiteID and the CK_RoomID.
 
@@ -140,9 +140,9 @@ energyuse_df <- read_csv("RBSA-II-Combined-Database/SiteInterview_HomeEnergyUse.
 7) Created EUI variable (response variable)
 
 
-The data cleaning and wrangling process followed basic data quality checks, which included assessing the data for 1) accuracy, 2) completeness, 3) consistency, 4) timeliness, 5) validity, and 6) uniqueness (refer to Appendix for detailed information regarding this assessment). All of the data cleaning and wrangling took place in RStudio, using base R and tidyverse syntax The first step in the cleaning process involved identifying useful datasets. The "One Line Summary" and "Site Interview Demographics" data frames were used for this analysis. The "One Line Summary" data frame exhaustive data frame that included information about energy consumption, geographic location, and building information. The "Site Interview Demographics" data frame included demographic information, such as resident's income, age, and ownership status (renter or buyer).
+The data cleaning and wrangling process followed basic data quality checks, which included assessing the data for 1) accuracy, 2) completeness, 3) consistency, 4) timeliness, 5) validity, and 6) uniqueness (refer to Appendix for detailed information regarding this assessment). All of the data cleaning and wrangling took place in R Studio, using base R and tidyverse syntax The first step in the cleaning process involved identifying useful data sets. The "One Line Summary" and "Site Interview Demographics" data frames were used for this analysis. The "One Line Summary" data frame exhaustive data frame that included information about energy consumption, geographic location, and building information. The "Site Interview Demographics" data frame included demographic information, such as resident's income, age, and ownership status (renter or buyer).
 
-The next step in the data cleaning and wrangling process was identifying a primary key to merge the "One Line Summary" data frame and the "Site Interview Demographics" data frame. The data frames were merged by the "DB_SiteID" and "CK_SiteID." After the merger, the data sets were subsetted for for the "Puget Sound" region. Next, housing variables and household characteristic variables, as outlined by the Buylova (2020) paper, were selected for the analytical data frame. Check the Appendix to learn more about the housing and household characteristic variables. Variables with the kBtu units were also selected to create the EUI variable. Finally, the varibles were cleaned and wrangled. 
+The next step in the data cleaning and wrangling process was identifying a primary key to merge the "One Line Summary" data frame and the "Site Interview Demographics" data frame. The data frames were merged by the "DB_SiteID" and "CK_SiteID." After the merger, the data sets were subsetted for for the "Puget Sound" region. Next, housing variables and household characteristic variables, as outlined by the Buylova (2020) paper, were selected for the analytical data frame. Check the Appendix to learn more about the housing and household characteristic variables. Variables with the kBtu units were also selected to create the EUI variable. Finally, the variables were cleaned and wrangled, which can be seen by reviewing the code below. 
 
 ```{r}
 #Merge ols_df to demog
@@ -158,8 +158,6 @@ pug_sound_ols <- ols_demog %>%
 ```{r}
 #Explore the Puget Sound Data
 sum(is.na((pug_sound_ols)))
-
-summary(pug_sound_ols)
 ```
 
 ```{r}
@@ -237,10 +235,6 @@ pug_short_elder$`Conditioned Area` <- as.numeric(pug_short_elder$`Conditioned Ar
 pug_short_eui <- pug_short_elder %>%
   mutate(eui = `Annual Electric Usage (kBtu)`/`Conditioned Area`)
 
-summary(pug_short_eui$eui)
-summary(pug_short_eui$`Annual Electric Usage (kBtu)`)
-summary(pug_short_eui$`Conditioned Area`)
-
 #clean names
 pug_eui <- clean_names(pug_short_eui)
 ```
@@ -248,11 +242,17 @@ pug_eui <- clean_names(pug_short_eui)
 ---
 ## Section 3: Data assessment
 - What are the sensitivities and ethical considerations of working with this data?
-- What are the strengths and limitations of working with this dataset(s)?
+- What are the strengths and limitations of working with this data set(s)?
 - What are the strengths and limitations of the methods that were applied?
 - What elements in the data operationalize the key concepts and/or questions in the project?  
 
+Identifiability is becoming less of a binary and more of a continuum. In other words, privacy is not about private or public, but about how much information is disclosed, which in turn can make certain groups and individuals more seen. The RBSA is publicly available data that does not disclose individual addresses or people's names. However, a person's zip code, type of house, annual income, and the age of the homeowners/residents can result in indiviudal houses becoming more identifiable. Disclosure risks increase with dimensionality (more variables), linking multiple data sources, and using data analytics. This may run the risk of not adequatley protecting vulnerbale groups in the data set. For example, if this data is merged with other data sets, someone can identify if an households that are comprised of only elederly people or single people.
 
+Suggested Readings:
+
+[Corti, L. & Bishop, L (year).Legal and ethical challenges surrounding big data: energy data](https://dam.ukdataservice.ac.uk/media/604999/ukds-case-studies-ethical.pdf)
+
+[McKenna, E., Richardson, I., & Thomson, M. (2012). Smart meter data: Balancing consumer privacy concerns with legitimate applications. Energy Policy, 41, 807-814.](https://www.sciencedirect.com/science/article/abs/pii/S0301421511009438?casa_token=l789RhCZXBoAAAAA:1roGNDysGtPGYRRLFUt_3h1iWGH0Lz90OcN4Q5QxqVmKvnOMSWJZx5o0agOjt0e-sqexzbmvkw)
 ```{r}
 #Visualize eui
 pug_eui %>%
@@ -290,7 +290,7 @@ lm(eui ~ home_type_final + primary_heating_system + qty_bedrooms + elderly + chi
 1) Accuracy
   i) How well does a piece of information reflect reality?
  
-2) Completenes
+2) Completeness
   i) Does it fulfill your expectations of what’s comprehensive?
  
 3) Consistency
