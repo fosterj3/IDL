@@ -4,7 +4,7 @@ subtitle: "Exploring the utility of RBSA data for a Data Science for Social Good
 author: "James Lamar Foster"
 
 output:
-  html_document:
+  html_notebook:
     theme: cosmo
     toc: yes
     toc_float: yes
@@ -51,6 +51,7 @@ This document is organized into five sections to illustrate the potential of the
 #### Packages 
 ```{r, message=FALSE}
 #packages used in this analysis
+
 if(!require(readr)){
     install.packages("readr", dependencies = TRUE)
     library(readr)
@@ -85,6 +86,11 @@ if(!require(stringr)){
     install.packages("stringr", dependencies = TRUE)
     library(stringr)
 }
+
+if(!require(lubridate)){
+    install.packages("lubridate", dependencies = TRUE)
+    library(lubridate)
+}
 ```
 
 ---
@@ -95,16 +101,16 @@ if(!require(stringr)){
 
 1) Explored and discovered existing data documentation 
 2) Identified data frames of interest 
-3) Discerned relationship between data frames 
+3) Discerned relationship between dataframes 
 
-This data is from the Residential Building Stock Assessment [(RBSA)](https://neea.org/resources/rbsa-ii-combined-database) conducted in 2016-17 (the specific data collection months are unclear, the 2022 RBSA data collection is scheduled for June and July). It includes a representative sample of single-family, multi-family, and manufactured homes gathered across the Northwest region. It has 47 comma-separated variable (CSV) tabular data frames that includes a representative sample of 1,130 single-family, 230 multi-family, and 550 manufactured homes gathered across the Northwest region. Participants are recruited based on a random selection of single-family residential USPS addresses for the single-family component. For the multi-family component, the study recruited multi-family buildings to participate in the survey and then identified tenants in those buildings willing to participate. Two auditors performed each site visit. Audits lasted approximately two hours and covered all of the major components of the homes that can be linked to the household’s overall energy use, including building envelope, HVAC systems, lighting, appliances, electronics, and water technologies. In addition, the RBSA audit data was combined with self-reported home characteristics and demographics data collected in the phone survey during the recruitment of an on-site sample. Supporting documentation of the RBSA data can be found [here](https://neea.org/data/residential-building-stock-assessment).
+This data is from the Residential Building Stock Assessment [(RBSA)](https://neea.org/resources/rbsa-ii-combined-database) conducted in 2016-17 (the specific data collection months are unclear, the 2022 RBSA data collection is scheduled for June and July). It includes a representative sample of single-family, multi-family, and manufactured homes gathered across the Northwest region. It has 47 comma-separated variable (CSV) tabular dataframes that includes a representative sample of 1,130 single-family, 230 multi-family, and 550 manufactured homes gathered across the Northwest region. Participants are recruited based on a random selection of single-family residential USPS addresses for the single-family component. For the multi-family component, the study recruited multi-family buildings to participate in the survey and then identified tenants in those buildings willing to participate. Two auditors performed each site visit. Audits lasted approximately two hours and covered all of the major components of the homes that can be linked to the household’s overall energy use, including building envelope, HVAC systems, lighting, appliances, electronics, and water technologies. In addition, the RBSA audit data was combined with self-reported home characteristics and demographics data collected in the phone survey during the recruitment of an on-site sample. Supporting documentation of the RBSA data can be found [here](https://neea.org/data/residential-building-stock-assessment).
 
 The RBSA dataset comprises 49 files: 47 CSV files, one .txt ReadMe, and an excel spreadsheet with unique dataset values. One of the CSV tables is a data dictionary that describes the column names in each CSV table. The size of the CSV files ranges from 2 KB to 16.6 MB. The smallest table contains 11 columns and 14 rows/observations, while the largest has 249 columns and 15561 rows/observations. The ReadMe details changes to the RBSA dataset; changes and updates are numbered and organized by date. Each row in a table has a unique primary key (PK), making it possible to reference that specific object, and may include other relational keys (CKs) that make it possible to relate to other tables in the dataset. Most tables can be joined using the CK_SiteID and the CK_RoomID.
 
 The RBSA dataset houses data for manufactured homes, single-family homes, and multi-family residences. Within the dataset, data are attributed to a Site or a Building. Building data include information collected for nonresidential portions of a multi-family building. Site data include data collected for the entirety of a single-family or manufactured home and for residences visited at a multi-family building. The dataset denotes data associated with a Site by a CK_SiteID or PK_SiteID beginning with “SITE”; the dataset denotes data associated with a Building by a CK_SiteID or PK_SiteID beginning with “BLDG.”
 
 ```{r, message=FALSE, warning=FALSE}
-#Import the RBSA data frames of interest
+#Import the RBSA dataframes of interest
 
 ols_df <- read_csv("RBSA-II-Combined-Database/One Line Summary.csv")
 
@@ -120,7 +126,7 @@ energyuse_df <- read_csv("RBSA-II-Combined-Database/SiteInterview_HomeEnergyUse.
 ## Key Steps
 
 1) Explored the data 
-2) Identified and merged data frames of interest
+2) Identified and merged dataframes of interest
 3) Subset the data for the region of interest
 4) Explored data and selected variables of interest
     a) explanatory variables based on Buylova paper
@@ -278,10 +284,10 @@ pug_eui <- pug_eui_income %>%
 
 ## Key Steps
 
-1) Examing RBSA data affordances and limitations 
-2) Reading literature of data ethics 
-3) Exploring data for identifiability 
-4) Identifying potential data mergers that may raise privacy concerns
+1) Examined RBSA data affordances and limitations 
+2) Read literature of data ethics 
+3) Explored data for identifiability 
+4) Identified potential data mergers that may raise privacy concerns
 
 Results from the exploratory data analysis suggest that the RBSA data is a valuable dataset for identifying energy consumption and equity issues. The RBSA allows researchers to identify energy efficiency opportunities, the efficiency of specific appliances, and much more. The data includes the residential properties' zip code, enabling researchers to determine census tracts for geospatial analyses. Furthermore, The RBSA dataset includes residential demographic data, allowing researchers to disaggregate energy efficiency by family size, income, education level, age, and other demographic constructs. However, this analysis only explored 2 of the 47 dataframes (these two were selected because of the richness of the data and its alignment to the Buylova paper). Researchers should conduct further analyses to determine the utility of the other dataframes for answering critical research questions.  Lastly, the RBSA demographic dataframe does not provide race/ethnicity or gender data, which can inform racial and gender equity issues regarding housing and energy. 
 
@@ -289,7 +295,7 @@ More research opportunities become available when the RBSA data is merged with o
 
 Data is not neutral. People use data to convey a narrative about individuals, organizations, institutions, and the environment. As a result, data has the power to shape people's worldviews and influence their decisions. The depth and breadth of the RBSA data provide researchers and analysts with a myriad of analytical options and narratives they can tell. While data ought to be public and democratized, it can lead to bad actors using data to reify inequities. Users of the RBSA data should be mindful of the narrative they are telling with their data analysis and how their research can potentially be used to do harm. 
 
-Identifiability is becoming less of a binary and more of a continuum. In other words, privacy is not about private or public, but about how much information is disclosed, which can make certain groups and individuals more seen. The RBSA is publicly available data that does not disclose individual addresses or people's names. However, a person's zip code, type of house, annual income, and the age of the homeowners/residents can result in individual houses becoming more identifiable. Disclosure risks increase with dimensionality (more variables), linking multiple data sources, and using data analytics. This may run the risk of not adequately protecting vulnerable groups in the data set. For example, if this data is merged with other data sets, someone can identify households comprised of only older adults or single people. This is a cause for concern for these vulnerable groups. Geospatial analyses need to be done with care to mitigate the potential for identifying people.
+Identifiability is becoming less of a binary and more of a continuum. In other words, privacy is not about private or public, but about how much information is disclosed, which can make certain groups and individuals more seen. The RBSA is publicly available data that does not disclose individual addresses or people's names. However, a person's zip code, type of house, annual income, and the age of the homeowners/residents can result in individual houses becoming more identifiable. Disclosure risks increase with dimensionality (more variables), linking multiple data sources, and using data analytics. This may run the risk of not adequately protecting vulnerable groups in the dataset. For example, if this data is merged with other data sets, someone can identify households comprised of only older adults or single people. This is a cause for concern for these vulnerable groups. Geospatial analyses need to be done with care to mitigate the potential for identifying people.
 
 
 ### Suggested Readings:
@@ -299,7 +305,7 @@ Identifiability is becoming less of a binary and more of a continuum. In other w
 [McKenna, E., Richardson, I., & Thomson, M. (2012). Smart meter data: Balancing consumer privacy concerns with legitimate applications. Energy Policy, 41, 807-814.](https://www.sciencedirect.com/science/article/abs/pii/S0301421511009438?casa_token=l789RhCZXBoAAAAA:1roGNDysGtPGYRRLFUt_3h1iWGH0Lz90OcN4Q5QxqVmKvnOMSWJZx5o0agOjt0e-sqexzbmvkw)
 
 
-```{r, warning= FALSE, message= FALSE}
+```{r, echo= FALSE, warning= FALSE, message= FALSE, eval= FALSE}
 #Visualize eui
 pug_eui %>%
   filter(!primary_heating_system %in% c("Geothermal Heat Pump", "Radiant Heat")) %>% 
@@ -375,8 +381,8 @@ ggplot() + geom_bar(aes(primary_heating_system, annual_energy_use, fill = ses),
 
 ## Key Steps
 
-1) Replicate Buylova Model 
-2) Provide alternative Models
+1) Replicated Buylova Model 
+2) Provided alternative Models
 
 The RBSA dataset was cleaned, wrangled, and explored to understand its potential to answer critical research questions centered on the intersection of energy use and equity. The data exploration was guided by the methods employed by Buylova's (2020) paper, which used RBSA and ACS data to understand energy equity in Oregon. I used housing and household characteristic variables (Check Appendix A for more information) to replicate Buylova's OLS regression model. The response variable in Buylova's model was resident's energy use intensity (EUI), calculated by dividing annual energy use by the square footage of the home. The model included several explanatory variables, such as income level. 
 
@@ -399,19 +405,20 @@ lm(eui ~ home_type_final + year_built_decade + primary_heating_system + qty_bedr
 
 ## Key Steps
 
-- What further questions can be asked with the data?
-- What other data sets could complement or replace these data?
-- What methods could be applied to answer the aforementioned questions and work with the aforementioned data sets?  
-- What software, languages, and tools would be needed to answer the aforementioned questions and work with aforementioned data sets?
-- What resources and/or areas of expertise would be valuable for others interested in working with the data?
+1) Identify secondary datasets 
+2) Develop a alternative research questions
 
-The RBSA data exploration was guided by how Bulova(2020) used the RBSA data to invesitgate the dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption. Buylova's investigation was done by merging the RBSA data with ACS data. It has yet to be seen what other data sources can be used alongside the RBSA data set and what questions can be answered. This section makes an attempt to imagine innovative approaches to using the RBSA data set to answer relevant and critical questions. 
+The RBSA data exploration was guided by how Buylova (2020) used the RBSA data to investigate the dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption. Buylova's investigation was done by merging the RBSA data with ACS data. It has yet to be seen what other data sources researchers can use alongside the RBSA dataset and what questions they can answer. This section attempts to imagine innovative approaches to using the RBSA dataset to answer relevant and critical questions. 
 
-The RBSA data could potentially be paired with housing data, such as the Washington Merged Longitudinal Adminstrative Data [(WMLAD)](https://uwescience.github.io/MinWA/Overview/) or [Zillow](https://www.zillow.com/research/data/) data to illustrate a clearer picture of housing burden in Washington State or specifically the Puget Sound region. Housing burden measures include rent, transportation, and utilities. WMLAD provides rent and transportation, while RBSA provides utility data. Paired with existing housing data, like WMLAD, the RBSA data can create a latent variable for housing burden that may have policy implications. 
+The RBSA data could potentially be paired with housing data, such as the Washington Merged Longitudinal Administrative Data [(WMLAD)](https://uwescience.github.io/MinWA/Overview/) or [Zillow](https://www.zillow.com/research/data/) data to illustrate a clearer picture of housing burden in Washington State or specifically the Puget Sound region. Housing burden measures include rent, transportation, and utilities. WMLAD provides rent and transportation, while RBSA provides utility data. Paired with existing housing data, like WMLAD, the RBSA data can create a latent variable for housing burden that may have policy implications. The latent housing burden variable may include a person’s monthly rent, commute, and energy costs. Combining this data could help make a case for more energy-efficient policies in the Puget Sound or promote other policy levers to mitigate housing burden. 
 
-During the RBSA data exploration, other data sources were recommended for further analysis. Specifically, data from the Residential Energy Consumption Survey (RECS) administered by the US Energy Information Administration (EIA). RECS is a nationally representative sample of housing. Every four years, since 1980, EIA collects energy characteristics on housing unit, usage patterns, and household demographics. A longitudinal data set could be created with the RECS data; however, household level data is not publiclly available. With proper data sharing agreements, access to the data could be obtained. However, there are other publically available datsets that may complement or replace the RBSA data set (see below).
+During the RBSA data exploration, I recommended other datasets for further analysis. Specifically, data from the Residential Energy Consumption Survey (RECS) administered by the US Energy Information Administration (EIA). RECS is a nationally representative sample of housing. Since 1980, EIA has collected energy characteristics on housing units, usage patterns, and household demographics every four years. Researchers can create a longitudinal dataset with the RECS data to model historical state trends in energy consumption or build a robust model to predict energy consumption across the state of Washington. However, there are restrictions to the RECS data. Researchers could obtain full access to the RECS data by developing a data-sharing agreement. 
 
-### **Other Data Sets** 
+Energy consumption doesn’t just have a costly effect on individual households; it also has deleterious environmental implications. As a result, reducing energy consumption in densely populated areas is of great importance. Researchers should focus on residential energy consumption and commercial buildings’ energy consumption. The Building Energy Benchmarking dataset, constructed by Seattle’s Building Energy Benchmarking and Reporting Program, provides sufficient information to examine how residential and commercial buildings contribute to high energy use. The dataset contains data of the building’s EUI and physical conditions, including energy star scores. 
+
+There is a wealth of energy datasets with important information waiting to be analyzed. The Duke Initiative houses a collection of energy data and tools supported by the National Science Foundation. Some of the datasets contain information about renewable energy, electricity, the environment, buildings, transportation, and much more. The datasets and readings suggested throughout this document can be found in the Appendix.
+
+### Other Datasets 
 
 [Residential Energy Consumption Survey (RECS)](https://www.eia.gov/consumption/residential/index.php)
 
@@ -442,11 +449,27 @@ During the RBSA data exploration, other data sources were recommended for furthe
   5. Household size
 
 
+## Appendix B: All Suggested Readings 
+
+1) [Ahn, Y., & Sohn, D. W. (2019). The effect of neighbourhood-level urban form on residential building energy use: A GIS-based model using building energy benchmarking data in Seattle. Energy and Buildings, 196, 124-133.](https://www.sciencedirect.com/science/article/pii/S0378778819306802?casa_token=IjUviYLyPZEAAAAA:ISebwB493MII1YuqcNH3YWdIOUNfNLn54hV5f7rbDFR5-Cugc8dvPdBd45kr7n391LdSzkY2xw)
+
+2) [Buylova, A. (2020). Spotlight on energy efficiency in Oregon: Investigating dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption. Energy Policy, 140, 111439.](https://www.sciencedirect.com/science/article/pii/S0301421520301920)
+
+3) [Corti, L. & Bishop, L (year).Legal and ethical challenges surrounding big data: energy data](https://dam.ukdataservice.ac.uk/media/604999/ukds-case-studies-ethical.pdf)
 
 
+4) [Kontokosta, C. E., Reina, V. J., & Bonczak, B. (2020). Energy cost burdens for low-income and minority households: Evidence from energy benchmarking and audit data in five US cities. Journal of the American Planning Association, 86(1), 89-105.](https://www.tandfonline.com/doi/full/10.1080/01944363.2019.1647446)
+
+5) [McKenna, E., Richardson, I., & Thomson, M. (2012). Smart meter data: Balancing consumer privacy concerns with legitimate applications. Energy Policy, 41, 807-814.](https://www.sciencedirect.com/science/article/abs/pii/S0301421511009438?casa_token=l789RhCZXBoAAAAA:1roGNDysGtPGYRRLFUt_3h1iWGH0Lz90OcN4Q5QxqVmKvnOMSWJZx5o0agOjt0e-sqexzbmvkw)
 
 
+## Appendix C: Additional Datasets 
 
+1) [Duke Energy Initiative Data Resources](https://energy.duke.edu/research/energy-data/resources)
+
+2) [Residential Energy Consumption Survey (RECS)](https://www.eia.gov/consumption/residential/index.php)
+
+3) [Seattle Building Energy Benchmarking](https://data.seattle.gov/dataset/2015-Building-Energy-Benchmarking/h7rm-fz6m/data)
 
 
 
