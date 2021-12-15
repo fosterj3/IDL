@@ -4,7 +4,7 @@ subtitle: "Exploring the utility of RBSA data for a Data Science for Social Good
 author: "James Lamar Foster"
 
 output:
-  html_notebook:
+  html_document:
     theme: cosmo
     toc: yes
     toc_float: yes
@@ -15,7 +15,7 @@ output:
 </head>
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE )
 
 #clear memory
 rm(list = ls())
@@ -30,20 +30,21 @@ options(scipen = 10)
 ---
 
 # Executive Summary
-This documentation outlines the preprocessing of RBSA data to reproduce the analytical data frame and model as described in the Buylova (2020) "Spotlight on energy efficiency in Oregon" article. Buyolva (2020) used two data sets: a household energy audit survey - the residential building stock assessment (RBSA) completed by the Northwest Energy Efficiency Association (NEEA) in 2017 and the American Community Survey (ACS) 2012-2017 5-year estimates data to investigate the dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption. This documentation is focused on preprocessing the RBSA data.
+The purpose of this documentation is to outline my preprocessing of the residential building stock assessment (RBSA) dataset completed by the Northwest Energy Efficiency Association (NEEA) in 2017 to determine its research potential. Results from the exploratory data analysis suggest that the RBSA data is a valuable dataset for identifying energy consumption and equity issues. The RBSA allows researchers to identify energy efficiency opportunities, the efficiency of specific appliances, and much more. The RBSA dataset includes residential demographic data, allowing researchers to disaggregate energy efficiency by family size, income, education level, age, and other demographic constructs. However, the RBSA demographic dataframe does not provide race/ethnicity nor gender data. More research opportunities become available when the RBSA data is merged with other dataframes. For example, Buylova (2020) was able to identify which regions in Oregon and racial/ethnic groups were more susceptible to high energy burden by combining the RBSA data with the American Community Survey (ACS) data.
 
-The Department of Housing and Urban Development (HUD) considers people spending more than 30% of their income on housing as housing burdened. Housing costs include rent, mortgage payment, property taxes, utilities, and housing insurance (Lin, 2018). There has recently been a spotlight on how energy prices, i.e. utilities, contribute to housing burden (Buylova, 2020). Energy bills of more than 6-10% of income is considered unaffordable (Hernandez & Bird, 2010; Heindl, 2015; Kontokosta et al., 2019). Previous research demonstrates energy cost burden disproportionately affect lower income households, largely because they are most at risk for living in substandard and inefficient housing (Hernandez & Phillips, 2015). Energy upgrades can  help alleviate energy cost burden and potentially housing burden by saving a low-income multifamily household up to $1,500 per year per household (Kontokosta et al., 2019).
+This document loosely follows the methods Buylova employed to conduct her analysis. Buylova's analysis included housing variables and household characteristic variables. My data exploration includes cleaning and wrangling the RBSA data to create the same variables Buylova used and more. As aforementioned, Buylova (2020) used the RBSA data completed by the NEEA in 2017 and the 2012-2017 ACS data to investigate the dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption. The underlying research inquiry guiding my exploratory data analysis of the RBSA data is the confluence of energy cost and housing burden.
 
-Energy cost burden is a function of both income and energy consumption. Drehobl and Ross (2016) found that an average low-income household energy burden was 7.2%, which is higher than an average higher income household energy burden of 2.3%. Findings from an evaluation of a federal energy assistance program determined that low-income households represent 92% of all households with energy burden of 10% (APPRISE, 2005). Federal Low-Income Home Energy Assistance Program (LIHEAP) designs its funding distribution mechanism based on energy burden levels. Income is used as the main qualifier for this program.
+The Department of Housing and Urban Development (HUD) considers people spending more than 30% of their income on housing as housing burdened. Housing costs include rent, mortgage payment, property taxes, utilities, and housing insurance (Lin, 2018). There has recently been a focus on how energy prices, i.e., utilities, contribute to housing burden. Energy bills of more than 6-10% of income are considered unaffordable (Hernandez & Bird, 2010; Heindl, 2015; Kontokosta et al., 2019). Previous research demonstrates that the energy cost burden disproportionately affects lower-income households because they are most at risk for living in substandard and inefficient housing (Hernandez & Phillips, 2015). Energy upgrades can help alleviate energy cost burden and potentially housing burden by saving a low-income multi-family household up to $1,500 per year per household (Kontokosta et al., 2019).
 
-Suggested Readings:
+Energy cost burden is a function of both income and energy consumption. Drehobl and Ross (2016) found that an average low-income household energy burden was 7.2%, higher than an average higher-income household energy burden of 2.3%. Findings from a federal energy assistance program evaluation determined that low-income households represent 92% of all households with an energy burden of 10% (APPRISE, 2005). The Federal Low-Income Home Energy Assistance Program designs its funding distribution mechanism based on energy burden levels; income is used as the primary qualifier for this program.
+
+This document is organized into five sections to illustrate the potential of the RBSA data. Section 1 describes the data; section 2 outlines the data cleaning and wrangling process; section 3 examines ethical considerations for using the data; section 4 suggests inferential and machine learning models that can be done with the data. Finally, section 5 concludes by providing uses of the RBSA data when merged with other data.
+
+### Suggested Readings:
 
 [Buylova, A. (2020). Spotlight on energy efficiency in Oregon: Investigating dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption. Energy Policy, 140, 111439.](https://www.sciencedirect.com/science/article/pii/S0301421520301920)
 
 [Kontokosta, C. E., Reina, V. J., & Bonczak, B. (2020). Energy cost burdens for low-income and minority households: Evidence from energy benchmarking and audit data in five US cities. Journal of the American Planning Association, 86(1), 89-105.](https://www.tandfonline.com/doi/full/10.1080/01944363.2019.1647446)
-
-<a href=http://www.github.com target="_top"/>Github</a>
-
 
 ---
 
@@ -70,23 +71,37 @@ if(!require(janitor)){
     install.packages("janitor", dependencies = TRUE)
     library(janitor)
 }
+if(!require(forcats)){
+    install.packages("forcats", dependencies = TRUE)
+    library(forcats)
+}
+
+if(!require(DataExplorer)){
+    install.packages("DataExplorer", dependencies = TRUE)
+    library(DataExplorer)
+}
+
+if(!require(stringr)){
+    install.packages("stringr", dependencies = TRUE)
+    library(stringr)
+}
 ```
 
 ---
 
-## Section 1: Data Description
+# Section 1: Data Description
 
-### Key Steps
+## Key Steps
 
 1) Explored and discovered existing data documentation 
 2) Identified data frames of interest 
 3) Discerned relationship between data frames 
 
-This data is from the Residential Building Stock Assessment [(RBSA)](https://neea.org/resources/rbsa-ii-combined-database) conducted in 2016-17. It includes a representative sample of single-family, multi-family and manufactured homes gathered across the Northwest region. It has 47 comma separated variable (csv) tabular data sets that includes a representative sample of 1,130 single-family, 230 multi-family and 550 manufactured homes gathered across the Northwest region. For the single-family component, participants are recruited based on a random selection of single-family residential USPS addresses. For the multi-family component, the study recruited multi-family buildings to participate in the study and then identify tenants in those buildings willing to participate. Two auditors performed each site visit. Audits lasted approximately two hours and covered all of the major components of the homes that can be linked to the household’s overall energy use, including: building envelope, HVAC systems, lighting, appliances, electronics, and water technologies. In addition, this audit data was combined with self-reported home characteristics and demographics data that were collected in the phone survey during the recruitment of on-site sample. Supporting documentation of the RBSA data can be found [here](https://neea.org/data/residential-building-stock-assessment).
+This data is from the Residential Building Stock Assessment [(RBSA)](https://neea.org/resources/rbsa-ii-combined-database) conducted in 2016-17 (the specific data collection months are unclear, the 2022 RBSA data collection is scheduled for June and July). It includes a representative sample of single-family, multi-family, and manufactured homes gathered across the Northwest region. It has 47 comma-separated variable (CSV) tabular data frames that includes a representative sample of 1,130 single-family, 230 multi-family, and 550 manufactured homes gathered across the Northwest region. Participants are recruited based on a random selection of single-family residential USPS addresses for the single-family component. For the multi-family component, the study recruited multi-family buildings to participate in the survey and then identified tenants in those buildings willing to participate. Two auditors performed each site visit. Audits lasted approximately two hours and covered all of the major components of the homes that can be linked to the household’s overall energy use, including building envelope, HVAC systems, lighting, appliances, electronics, and water technologies. In addition, the RBSA audit data was combined with self-reported home characteristics and demographics data collected in the phone survey during the recruitment of an on-site sample. Supporting documentation of the RBSA data can be found [here](https://neea.org/data/residential-building-stock-assessment).
 
-The RBSA database is comprised of a 49 files: 47 csv files, one .txt ReadMe, and an excel spreadsheet with unique database values. One of the csv tables is a data dictionary that gives a description of the column names in each csv table. The size of the csv files ranges from 2 KB to 16.6 MB. The smallest table contains 11 columns and 14 rows/observations, while the largest table contains 249 columns and 15561 rows/observations. The ReadMe details updates and changes to the RBSA II Database; changes and updates are numbered and organized by date. Each row in a table has a unique primary key (PK), making it possible to reference that specific object, and may include other relational keys (CKs) that make it possible to relate to other tables in the database. Most tables can be joined using the CK_SiteID and the CK_RoomID.
+The RBSA dataset comprises 49 files: 47 CSV files, one .txt ReadMe, and an excel spreadsheet with unique dataset values. One of the CSV tables is a data dictionary that describes the column names in each CSV table. The size of the CSV files ranges from 2 KB to 16.6 MB. The smallest table contains 11 columns and 14 rows/observations, while the largest has 249 columns and 15561 rows/observations. The ReadMe details changes to the RBSA dataset; changes and updates are numbered and organized by date. Each row in a table has a unique primary key (PK), making it possible to reference that specific object, and may include other relational keys (CKs) that make it possible to relate to other tables in the dataset. Most tables can be joined using the CK_SiteID and the CK_RoomID.
 
-The RBSA database houses data for manufactured homes, single-family homes, multi-family residences, and multi-family buildings. Within the database, data are attributed to a Site or a Building. Building data include information collected for nonresidential portions of a multifamily building. Site data include information collected for the entirety of a single-family or manufactured home, and for residences visited at a multifamily building. The database denotes data associated with a Site by a CK_SiteID or PK_SiteID beginning with “SITE”; the database denotes data associated with a Building by a CK_SiteID or PK_SiteID beginning with “BLDG.”
+The RBSA dataset houses data for manufactured homes, single-family homes, and multi-family residences. Within the dataset, data are attributed to a Site or a Building. Building data include information collected for nonresidential portions of a multi-family building. Site data include data collected for the entirety of a single-family or manufactured home and for residences visited at a multi-family building. The dataset denotes data associated with a Site by a CK_SiteID or PK_SiteID beginning with “SITE”; the dataset denotes data associated with a Building by a CK_SiteID or PK_SiteID beginning with “BLDG.”
 
 ```{r, message=FALSE, warning=FALSE}
 #Import the RBSA data frames of interest
@@ -95,40 +110,47 @@ ols_df <- read_csv("RBSA-II-Combined-Database/One Line Summary.csv")
 
 demog <- read_csv("RBSA-II-Combined-Database/SiteInterview_Demographics.csv")
 
-room_df <- read_csv("RBSA-II-Combined-Database/Room.csv") #has the area of different room in each residence
-
-site_df <- read_csv("RBSA-II-Combined-Database/SiteDetail.csv")  #redundant with ols_df
-
 energyuse_df <- read_csv("RBSA-II-Combined-Database/SiteInterview_HomeEnergyUse.csv") #has data on energy use and energy star appliances
 ```
 
 ---
 
-## Section 2: Data Journey
+# Section 2: Data Journey
 
-### Key Steps
+## Key Steps
 
-1) Identified and merged data frames of interest
-3) Subset the data for region of interest
+1) Explored the data 
+2) Identified and merged data frames of interest
+3) Subset the data for the region of interest
 4) Explored data and selected variables of interest
     a) explanatory variables based on Buylova paper
 5) Recoded and reclassified data
 6) Transformed variables of interest
-7) Created EUI variable (response variable)
+7) Created EUI variable 
+    a) response variable based on Buylova paper
+    
+The data cleaning and wrangling process took place in RStudio, using base R and Tidyverse syntax. The data cleaning and wrangling process included 1) removing unwanted variables, 2) checking data for accuracy, 3) handling missing data, 4) ensuring consistency across variable types, and 5) checking validity – does the data make sense? The first step in the cleaning process involved identifying useful variables within the RBSA dataset to replicate Buylova’s methods. The "One Line Summary" and "Site Interview Demographics" dataframes had the necessary variables to recreate the regression model conducted by Buylova.
 
+Dplyr from the Tidyverse was used to merge the "Site Interview Demographics" to the "One Line Summary" dataframe. The "One Line Summary" dataframe has energy consumption, geographic location, and building information. The primary key for the merger was the "DB_SiteID" and "CK_SiteID." The "Site Interview Demographics" dataframe included demographic information, such as resident's income, age, and ownership status (renter or buyer). 
 
-The data cleaning and wrangling process followed basic data quality checks, which included assessing the data for 1) accuracy, 2) completeness, 3) consistency, 4) timeliness, 5) validity, and 6) uniqueness (refer to Appendix A for detailed information regarding this assessment). All of the data cleaning and wrangling took place in R Studio, using base R and tidyverse syntax. The first step in the cleaning process involved identifying useful data sets. The "One Line Summary" and "Site Interview Demographics" data frames were used to create the analytic data set. The data cleaning and wrangling was driven by trying to replicate the analysis done in the [Buylova (2020)](https://www.sciencedirect.com/science/article/pii/S0301421520301920) paper. Dplyr from the tidyverse was used to merge the "One Line Summary" to the "Site Interview Demographics" data frames.The "One Line Summary" data frame has data concerning energy consumption, geographic location, and building information. The primary key for the merger were the "DB_SiteID" and "CK_SiteID." The "Site Interview Demographics" data frame included demographic information, such as resident's income, age, and ownership status (renter or buyer). 
+After the merger, the dataframe was subsetted for the "Puget Sound" region. Next, housing and household characteristic variables, as outlined by the Buylova (2020) paper, were selected to create the analytical dataframe (refer to Appendix A to learn more about the housing and household characteristic variables). The EUI, the response variable, was created by dividing the total annual energy consumption (which is in British Thermal Units (kBTU)) by the conditioned living area of the home (sq. foot). Variables with kBTU units were identified and summed to create a total annual energy use variable. Once the analytic dataframe had all the necessary variables, I checked for missingness. 
 
-After the merger, the data frame was subsetted for for the "Puget Sound" region. Next, housing variables and household characteristic variables, as outlined by the Buylova (2020) paper, were selected for the analytical data frame (refer to Appendix B to learn more about the housing and household characteristic variables). The EUI, the response variable, was created by dividing the total energy consumption in British Thermal Units (kBTU) by the conditioned living area of the home (sq. foot). To do this, variables with kBTU units were identified and used in the analytic data set. Once the analytic data frame had all the necessary variables, it was checked for missingness. 
+The first attempt to check for missing data resulted in 7301 missing data. Upon further examination, I noticed there was missing data in the RBSA dataset coded as "unknown," "prefer not to say," and as the character value "N/A." I recoded variables with those observations as NA (missing). Many variables needed to be transformed to replicate the Buylova (2020) model, such as age, income, and the total occupants. The income variable was a character variable that provided an income range. I split the income variable into low_end and high_end income then took the average of the low_end and high_end income to create an average income variable. Finally, I used the "janitor" package to make every variable consistent - lowercase and snake case.
 
-The first attempt of checking for missing data resulted in there being zero missing data. Upon further examination, it was revealed that missing data in the RBSA data set were coded as "unknown" or "prefer not to say." Variables with those observations were recoded as NA (missing). To replicate the Buylova (2020) model, many variables needed to be transformed, such as age variables, income variables, and the total occupants variable. Finally, the "janitor" package was used to make all of the variables lowercase and if applicable snake case. 
+```{r}
+#Explore the one line summary dataframe
+introduce(ols_df)
+```
+
+```{r}
+#Explore the demographic dataframe 
+introduce(demog)
+```
 
 ```{r}
 #Merge ols_df to demog
   ols_demog <- left_join(ols_df, demog, by = c("DB_SiteID" = "CK_SiteID"))
-```
 
-```{r}
 # Only get sites in Puget Sound Region
 pug_sound_ols <- ols_demog %>%
   filter(Region == "Puget Sound")
@@ -136,40 +158,38 @@ pug_sound_ols <- ols_demog %>%
 
 ```{r}
 #Explore the Puget Sound Data
-sum(is.na((pug_sound_ols)))
+introduce(pug_sound_ols)
 ```
 
 ```{r}
 #Select variables of interest
 pug_short <- pug_sound_ols %>%
-  select(`Cadmus ID`, State, County,Region, `Home Type - FMP Detailed`, `Home Type - Final`, `Year Built`,`Primary Heating System`, `Qty Bedrooms`,`Reported Income`, `Do you own or rent your home`, Ownership, `Qty Occupants Between 65 Years or Older`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants.x`, `Qty Occupants.y`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 1 and 5 Years`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants Between 11 and 18 Years`, `Qty Occupants Between 19 and 45 Years`, `Qty Occupants Between 46 and 64 Years`, `Qty Occupants Between 65 Years or Older`, `Conditioned Area`, `Annual Electric Usage (kBtu)`)
+  select(`Cadmus ID`, State, County,Region, `Home Type - FMP Detailed`, `Home Type - Final`, `Year Built`,`Primary Heating System`, `Qty Bedrooms`,`Reported Income`, `Do you own or rent your home`, Ownership, `Qty Occupants Between 65 Years or Older`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants.x`, `Qty Occupants.y`, `Qty Occupants Between Less than 1 Year`, `Qty Occupants Between 1 and 5 Years`, `Qty Occupants Between 6 and 10 Years`, `Qty Occupants Between 11 and 18 Years`, `Qty Occupants Between 19 and 45 Years`, `Qty Occupants Between 46 and 64 Years`, `Qty Occupants Between 65 Years or Older`, `Conditioned Area`, contains("kBtu"))
+```
+
+```{r}
+#Explore the Pug_short Data
+introduce(pug_short)
 ```
 
 ```{r}
 #Data Cleaning and wrangling
 
-## Check summary of data
-summary(pug_short)
+# Change "prefer not say", "Unkown", and N/A to NAs
+pug_short[pug_short == "Unknown" | pug_short == "Prefer not to say" | pug_short == "N/A"] <- NA
 
-## Missing values overall
-sum(is.na(pug_short))
+#Change year built variable into a date variable, instead of character 
+pug_short$`Year Built` <- as.Date(as.character(pug_short$`Year Built`), format = "%Y")
+pug_short$`Year Built` <- year(pug_short$`Year Built`)
 
-## Missing values by columns
-colSums(is.na(pug_short))
-
-# Change "prefer not say" and "Unkown" to NAs
-pug_short[pug_short == "Unknown" | pug_short == "Prefer not to say"] <- NA
+#Make a variable to get the decade each building was built 
+pug_short <- pug_short %>%
+  mutate(year_built_decade = 10*(`Year Built` %/% 10),
+         year_built_decade = factor(year_built_decade))
 
 ##Turn Certain variables into factors
 pug_short_clean <- pug_short %>%
-  mutate(across(c(`Home Type - FMP Detailed`, `Primary Heating System`,`Home Type - Final`,`Do you own or rent your home`:Ownership),as.factor))
-
-# Check certain variables for missingness
-sum(is.na(pug_short_clean))
-sum(is.na(pug_short_clean$`Reported Income`))
-sum(is.na(pug_short_clean$Ownership))
-sum(is.na(pug_short_clean$`Do you own or rent your home`))
-sum(is.na(pug_short_clean$`Year Built`))
+  mutate(across(c(`Home Type - FMP Detailed`, `Primary Heating System`,`Home Type - Final`,`Do you own or rent your home`:Ownership, County),as.factor))
 
 #Transform a age variables to the following: 1) less than 1 to 5, 2) 6-18, 3) 19-64, 4) 65 and up
 pug_short_clean_age <- pug_short_clean %>%
@@ -183,7 +203,7 @@ pug_short_clean_age <- pug_short_clean %>%
 
 #Remove original age columns
 pug_short_clean_age_short <- pug_short_clean_age %>%
-  select(-c(11,13:21,))
+  select(-c(11,13:21))
 
 #Make categorial variable for # of occupants
 pug_short_occupant <- pug_short_clean_age_short %>%
@@ -195,7 +215,7 @@ pug_short_occupant <- pug_short_clean_age_short %>%
 
 #Turn occupant cat into a factor
 pug_short_occupant$household_size <- factor(pug_short_occupant$household_size, levels = c("one-person", "two people", "three people", "four or more"))
-levels(pug_short_occupant$household_size) # check levels for accuracy
+
 
 # Make a binary children and elderly variable, elderly is anyone who is 65 and older, children is anyone 0-18 years old
 pug_short_elder <- pug_short_occupant %>%
@@ -208,31 +228,71 @@ pug_short_elder$children <- factor(pug_short_elder$children, levels = c("yes", "
 
 #Change character variables to numeric
 pug_short_elder$`Annual Electric Usage (kBtu)` <- as.numeric(pug_short_elder$`Annual Electric Usage (kBtu)`)
+pug_short_elder$`Annual Gas Usage (kBtu)` <- as.numeric(pug_short_elder$`Annual Gas Usage (kBtu)`)
 pug_short_elder$`Conditioned Area` <- as.numeric(pug_short_elder$`Conditioned Area`)
 
 #Ceate EUI variable
+#pug_short_eui <- 
 pug_short_eui <- pug_short_elder %>%
-  mutate(eui = `Annual Electric Usage (kBtu)`/`Conditioned Area`)
+  rowwise() %>% 
+  mutate(annual_energy_use = sum(c_across(contains("kBtu")), na.rm = TRUE)) %>% 
+  mutate(annual_energy_use = na_if(annual_energy_use, 0)) %>% 
+  mutate(eui = annual_energy_use/`Conditioned Area`)
 
-#clean names
-pug_eui <- clean_names(pug_short_eui)
+#Tranform the income variable and take the average of the lower-end income and the higher-end income
+pug_eui_income <- pug_short_eui %>% 
+  mutate(Reported_Income = str_replace(`Reported Income`, "\\s", "_")) %>% 
+  separate(Reported_Income, into = c("lower_income", "higher_income"), sep = "_") %>% 
+  mutate(lower_income = parse_number(lower_income),
+         higher_income = parse_number(higher_income)) %>%
+  mutate(lower_income = if_else(is.na(lower_income), higher_income, lower_income),
+         higher_income = if_else(is.na(higher_income), lower_income, higher_income)) %>% 
+  mutate(Average_Reported_Income = (lower_income+higher_income)/2) %>% 
+  clean_names()
+
+# Create Socioeconomic Status (SES) Variable based on average income and household size 
+# the low-wage income was based on the Washington State Low-Income Weatherization Program, https://www.commerce.wa.gov/wp-content/uploads/2021/02/2021-WA-Low-Income-Eligiblity-Guidelines.pdf 
+
+# Middle class numbers were derived from DSHS State Median Income Charts. Multiplying monthly income by 11 (months).  https://www.dshs.wa.gov/esa/eligibility-z-manual-ea-z/state-median-income-chart 
+
+#Note that the income numbers are for 2021 and the data is from 2016. More research should be done to better reflect SES in the data
+
+pug_eui <- pug_eui_income %>% 
+  mutate(ses = case_when(
+    average_reported_income < 31752 ~ "low",
+    average_reported_income <= 41521 & total_occupants == 2 ~ "low",
+    average_reported_income <= 51291 & total_occupants == 3 ~ "low",
+    average_reported_income <= 61061 & total_occupants >= 4 ~ "low",
+    average_reported_income = 4454*11 & average_reported_income < 5825*11 & (total_occupants == 1) ~ "middle",
+    average_reported_income = 5825*11 & average_reported_income < 7195*11 & (total_occupants >= 2) ~ "middle",
+    average_reported_income = 7195*11 & average_reported_income < 8566*11 & (total_occupants >= 3) ~ "middle",
+    average_reported_income = 8566*11 & average_reported_income < 9936*11 & (total_occupants >= 4) ~ "middle",
+    TRUE ~ "high")) %>%
+  mutate(ses = ifelse(is.na(average_reported_income), NA, ses)) %>% 
+  mutate(ses = factor(ses, levels = c("low", "middle", "high")))
 ```
 
 ---
 
-## Section 3: Data Assessment
+# Section 3: Data Assessment
 
-### Key Steps
+## Key Steps
 
-1) Reading literature of data ethics 
-2) Exploring data for identifiability 
-3) Identifying potential data mergers that may raise privacy concerns
+1) Examing RBSA data affordances and limitations 
+2) Reading literature of data ethics 
+3) Exploring data for identifiability 
+4) Identifying potential data mergers that may raise privacy concerns
 
-Data is not neutral. Data is used to convey a narrative about individuals, organizations, institutions, and the environment. As a result, data has the power to shape people's worldview and influence their decisions. The depth of and breadth of the RBSA data provides researchers and analyst with a myriad of analytical options and narratives they can tell. While data ought to be public and democratized, within reason, it can lead to bad actors using data to reify inequities. Users of the RBSA data should be mindful of the narrative they are telling with their data analysis and how their analysis can potentially be used to do harm. 
+Results from the exploratory data analysis suggest that the RBSA data is a valuable dataset for identifying energy consumption and equity issues. The RBSA allows researchers to identify energy efficiency opportunities, the efficiency of specific appliances, and much more. The data includes the residential properties' zip code, enabling researchers to determine census tracts for geospatial analyses. Furthermore, The RBSA dataset includes residential demographic data, allowing researchers to disaggregate energy efficiency by family size, income, education level, age, and other demographic constructs. However, this analysis only explored 2 of the 47 dataframes (these two were selected because of the richness of the data and its alignment to the Buylova paper). Researchers should conduct further analyses to determine the utility of the other dataframes for answering critical research questions.  Lastly, the RBSA demographic dataframe does not provide race/ethnicity or gender data, which can inform racial and gender equity issues regarding housing and energy. 
 
-Identifiability is becoming less of a binary and more of a continuum. In other words, privacy is not about private or public, but about how much information is disclosed, which in turn can make certain groups and individuals more seen. The RBSA is publicly available data that does not disclose individual addresses or people's names. However, a person's zip code, type of house, annual income, and the age of the homeowners/residents can result in individual houses becoming more identifiable. Disclosure risks increase with dimensionality (more variables), linking multiple data sources, and using data analytics. This may run the risk of not adequately protecting vulnerable groups in the data set. For example, if this data is merged with other data sets, someone can identify households that are comprised of only elderly people or single people. This is a cause for concern for these vulnerable groups. Geospatial analyses need to be done with care to mitigate the potential for identifying people.
+More research opportunities become available when the RBSA data is merged with other dataframes. For example, Buylova (2020) was able to identify which regions in Oregon and racial/ethnic groups were more susceptible to high energy burden by combining the RBSA data with the American Community Survey (ACS) data. Research questions concerning the actual energy cost for specific areas can be answered by determining the price per kWh and creating a regional map displaying the cost of energy and housing. Lastly, the RBSA data is limited in examining the temporal variation in the energy cost burden associated with changing energy prices. Additional datasets are needed to answer such questions. However, each new research question and analysis about housing and people's geographic location warrants careful ethical considerations.
 
-Suggested Readings:
+Data is not neutral. People use data to convey a narrative about individuals, organizations, institutions, and the environment. As a result, data has the power to shape people's worldviews and influence their decisions. The depth and breadth of the RBSA data provide researchers and analysts with a myriad of analytical options and narratives they can tell. While data ought to be public and democratized, it can lead to bad actors using data to reify inequities. Users of the RBSA data should be mindful of the narrative they are telling with their data analysis and how their research can potentially be used to do harm. 
+
+Identifiability is becoming less of a binary and more of a continuum. In other words, privacy is not about private or public, but about how much information is disclosed, which can make certain groups and individuals more seen. The RBSA is publicly available data that does not disclose individual addresses or people's names. However, a person's zip code, type of house, annual income, and the age of the homeowners/residents can result in individual houses becoming more identifiable. Disclosure risks increase with dimensionality (more variables), linking multiple data sources, and using data analytics. This may run the risk of not adequately protecting vulnerable groups in the data set. For example, if this data is merged with other data sets, someone can identify households comprised of only older adults or single people. This is a cause for concern for these vulnerable groups. Geospatial analyses need to be done with care to mitigate the potential for identifying people.
+
+
+### Suggested Readings:
 
 [Corti, L. & Bishop, L (year).Legal and ethical challenges surrounding big data: energy data](https://dam.ukdataservice.ac.uk/media/604999/ukds-case-studies-ethical.pdf)
 
@@ -242,32 +302,102 @@ Suggested Readings:
 ```{r, warning= FALSE, message= FALSE}
 #Visualize eui
 pug_eui %>%
-  ggplot(aes(eui,conditioned_area)) + geom_point() + stat_smooth(method = lm) + facet_wrap(~primary_heating_system)
+  filter(!primary_heating_system %in% c("Geothermal Heat Pump", "Radiant Heat")) %>% 
+  ggplot(aes(eui,conditioned_area)) + geom_point() +
+  stat_smooth(method = lm) + facet_wrap(~primary_heating_system) + scale_y_continuous(limits = c(0, NA)) +
+  labs(x = "Energy Use Intensity (EUI)", y = "Conditioned Area (square feet)", 
+       title = "Energy Use Intensity as a function of Conditioned Area", 
+       subtitle = "by primary heating source")
  
 ```
 
----
+```{r}
+pug_eui %>%
+  filter(!primary_heating_system %in% c("Geothermal Heat Pump", "Radiant Heat")) %>%
+  filter(!(ses %in% NA )) %>% 
+ggplot() + geom_bar(aes(primary_heating_system, eui, fill = ses), 
+                    stat = "summary", 
+                    fun.y = "mean",
+                    position = "dodge") +
+  labs(title= "Average Energy Use Intensity by Heating System", 
+       subtitle = "Puget Sound Region", 
+       x = "Primary Heating System", 
+       y = "Energy Use Intensity (kBtu/ft2)",
+       fill = "Socioeconomic Class") +
+  theme_bw() +
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3")) +
+  #theme(legend.position = "none") +
+  coord_flip()
+```
 
-## Section 4: Modeling
-
-### Key Steps
-
-- What analyses can be done with the data 
-- What models were built 
 
 ```{r}
-#model  
-lm(eui ~ conditioned_area, data = pug_eui)
+pug_eui %>%
+  filter(!primary_heating_system %in% c("Geothermal Heat Pump", "Radiant Heat")) %>%
+  filter(!(ses %in% NA )) %>% 
+ggplot() + geom_bar(aes(primary_heating_system, conditioned_area, fill = ses), 
+                    stat = "summary", 
+                    fun.y = "mean",
+                    position = "dodge") +
+  labs(title= "Average Square Footage by Heating System", 
+       subtitle = "Puget Sound Region", 
+       x = "Primary Heating System", 
+       y = "Conditioned Area (sq. ft)",
+       fill = "Socioeconomic Class") +
+  theme_bw() +
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3")) +
+  coord_flip()
+```
 
-lm(eui ~ home_type_final + primary_heating_system + qty_bedrooms + elderly + children + household_size + ownership, data = pug_eui) %>%
-  summary()
+```{r}
+pug_eui %>%
+  filter(!primary_heating_system %in% c("Geothermal Heat Pump", "Radiant Heat")) %>%
+  filter(!(ses %in% NA )) %>% 
+ggplot() + geom_bar(aes(primary_heating_system, annual_energy_use, fill = ses), 
+                    stat = "summary", 
+                    fun.y = "mean",
+                    position = "dodge") +
+  labs(title= "Average Energy Use Intensity by Heating System and Household Size", 
+       subtitle = "Puget Sound Region", 
+       x = "Primary Heating System", 
+       y = "Annual Energy Use",
+       fill = "Socioeconomic Class") +
+  theme_bw() +
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3")) +
+  #theme(legend.position = "none") +
+  coord_flip() + 
+  facet_wrap(~household_size)
 ```
 
 ---
 
-## Section 5: Future work
+# Section 4: Modeling
 
-### Key Steps
+## Key Steps
+
+1) Replicate Buylova Model 
+2) Provide alternative Models
+
+The RBSA dataset was cleaned, wrangled, and explored to understand its potential to answer critical research questions centered on the intersection of energy use and equity. The data exploration was guided by the methods employed by Buylova's (2020) paper, which used RBSA and ACS data to understand energy equity in Oregon. I used housing and household characteristic variables (Check Appendix A for more information) to replicate Buylova's OLS regression model. The response variable in Buylova's model was resident's energy use intensity (EUI), calculated by dividing annual energy use by the square footage of the home. The model included several explanatory variables, such as income level. 
+
+Instead of creating the same income levels Buylova used, I developed a socioeconomic status (SES) variable indicating whether a person was in a low, middle, or high-income class. A person's SES was calculated by determining income cutoff points based on household size and what is considered a livable wage in the Puget Sound Region for 2020. Future researchers should develop a more accurate measure of a livable wage in the Puget Sound Region for 2017 - when the data was collected. Additionally, the EUI variable had over 200 missing observations, negatively affecting the model. An imputation should be applied to account for the missing EUI observations.
+
+Future modeling may include a machine learning model to examine multicollinearity between variables and identify variables that have the most significant impact on energy use. Further, a machine learning regression model can be applied to determine which homes will most likely have a high energy use. The results can then be mapped to quickly identify which regions and groups of people in the Puget Sound are more susceptible to high energy used based on specific variables in the data.
+
+```{r}
+#model  
+lm(eui ~ home_type_final + year_built_decade + primary_heating_system + qty_bedrooms + average_reported_income + elderly + children + household_size + ownership, data = pug_eui) %>%
+  broom::tidy()
+
+lm(eui ~ home_type_final + year_built_decade + primary_heating_system + qty_bedrooms + average_reported_income + elderly + children + household_size + ownership, data = pug_eui) %>%
+  broom::glance()
+```
+
+---
+
+# Section 5: Future work
+
+## Key Steps
 
 - What further questions can be asked with the data?
 - What other data sets could complement or replace these data?
@@ -277,35 +407,24 @@ lm(eui ~ home_type_final + primary_heating_system + qty_bedrooms + elderly + chi
 
 The RBSA data exploration was guided by how Bulova(2020) used the RBSA data to invesitgate the dynamics between energy use and socio-demographic characteristics in spatial modeling of residential energy consumption. Buylova's investigation was done by merging the RBSA data with ACS data. It has yet to be seen what other data sources can be used alongside the RBSA data set and what questions can be answered. This section makes an attempt to imagine innovative approaches to using the RBSA data set to answer relevant and critical questions. 
 
-The RBSA data could potentially be paired with housing data, such as Washington Merged Longitudinal Adminstrative Data [(WMLAD)](https://uwescience.github.io/MinWA/Overview/) or [Zillow](https://www.zillow.com/research/data/) data to illustrative a clearer picture of housing burden in Washington State of specifically the Puget Sound region. Most studies on housing burden typically exclude energy costs when calculating housin burden. RBSA data can create a new latent construct for housing burden that may have policy implications. 
+The RBSA data could potentially be paired with housing data, such as the Washington Merged Longitudinal Adminstrative Data [(WMLAD)](https://uwescience.github.io/MinWA/Overview/) or [Zillow](https://www.zillow.com/research/data/) data to illustrate a clearer picture of housing burden in Washington State or specifically the Puget Sound region. Housing burden measures include rent, transportation, and utilities. WMLAD provides rent and transportation, while RBSA provides utility data. Paired with existing housing data, like WMLAD, the RBSA data can create a latent variable for housing burden that may have policy implications. 
+
+During the RBSA data exploration, other data sources were recommended for further analysis. Specifically, data from the Residential Energy Consumption Survey (RECS) administered by the US Energy Information Administration (EIA). RECS is a nationally representative sample of housing. Every four years, since 1980, EIA collects energy characteristics on housing unit, usage patterns, and household demographics. A longitudinal data set could be created with the RECS data; however, household level data is not publiclly available. With proper data sharing agreements, access to the data could be obtained. However, there are other publically available datsets that may complement or replace the RBSA data set (see below).
+
+### **Other Data Sets** 
+
+[Residential Energy Consumption Survey (RECS)](https://www.eia.gov/consumption/residential/index.php)
+
+[Seattle Building Energy Benchmarking](https://data.seattle.gov/dataset/2015-Building-Energy-Benchmarking/h7rm-fz6m/data)
+
+[Duke Energy Initiative Data Resources](https://energy.duke.edu/research/energy-data/resources)
 
 ---
 
 # Appendices
 
-## Appendix A: Data Quality Assessment Dimensions
 
-1) **Accuracy**
-    i) How well does a piece of information reflect reality?
- 
-2) **Completeness**
-    i) Does it fulfill your expectations of what’s comprehensive?
- 
-3) **Consistency**
-    i) Does information stored in one place match relevant data stored elsewhere?
- 
-4) **Timeliness**
-    i) Is your information available when you need it?
- 
-5) **Validity**
-    i) Is information in a specific format, does it follow business rules, or is it in an unusable format?
- 
-6) **Uniqueness**
-    i) Is this the only instance in which this information appears in the database?
-    
-Note: Learn more by visiting this [website](https://www.precisely.com/blog/data-quality/data-quality-dimensions-measure )    
-
-## Appendix B: Buylova (2020) variables of interest
+## Appendix A: Buylova (2020) variables of interest
 
 **Housing Characteristics:** 
   
