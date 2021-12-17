@@ -211,7 +211,7 @@ pug_short_clean_age <- pug_short_clean %>%
 pug_short_clean_age_short <- pug_short_clean_age %>%
   select(-c(11,13:21))
 
-#Make categorial variable for # of occupants
+#Make categorial variable for # of occupants, as done in the Buylova paper
 pug_short_occupant <- pug_short_clean_age_short %>%
   mutate(household_size = case_when(
     total_occupants == 1 ~ "one-person",
@@ -219,7 +219,7 @@ pug_short_occupant <- pug_short_clean_age_short %>%
     total_occupants == 3 ~ "three people",
     total_occupants >= 4 ~ "four or more"))
 
-#Turn occupant cat into a factor
+#Turn household size variable into a factor
 pug_short_occupant$household_size <- factor(pug_short_occupant$household_size, levels = c("one-person", "two people", "three people", "four or more"))
 
 
@@ -391,7 +391,7 @@ ggplot() + geom_bar(aes(primary_heating_system, annual_energy_use, fill = ses),
 
 The RBSA dataset was cleaned, wrangled, and explored to understand its potential to answer critical research questions centered on the intersection of energy use and equity. The data exploration was guided by the methods employed by Buylova's (2020) paper, which used RBSA and ACS data to understand energy equity in Oregon. I used housing and household characteristic variables (Check Appendix A for more information) to replicate Buylova's OLS regression model. The response variable in Buylova's model was resident's energy use intensity (EUI), calculated by dividing annual energy use by the home's square footage. The model included several explanatory variables, such as income level. 
 
-Instead of creating the same income levels Buylova used, I developed a socioeconomic status (SES) variable indicating whether a person was in a low, middle, or high-income class. A person's SES was calculated by determining income cutoff points based on household size and what is considered a livable wage in the Puget Sound Region for 2020. Future researchers should develop a more accurate measure of a livable wage in the Puget Sound Region for 2017 - when the data was collected. Additionally, the EUI variable had over 200 missing observations, which may adversely affect the model. An imputation should be applied to account for the missing EUI observations and other key variables.
+Instead of creating the same income levels Buylova used, I developed a socioeconomic status (SES) variable indicating whether a person was in a low, middle, or high-income class. A person's SES was calculated by determining income cutoff points based on household size and what is considered a livable wage in the Puget Sound Region for 2020. Future researchers should develop a more accurate measure of a livable wage in the Puget Sound Region for 2017 - when the data was collected. Additionally, the EUI variable had over 200 missing observations due to apartment buildings not reporting energy use in this dataframe. Further investigation should be done to account for the missing apartment EUI information or possibly conduct an imputation.
 
 Future modeling may include a machine learning model to examine multicollinearity between variables and identify variables that have the most significant impact on energy use. Further, a machine learning regression model can be applied to determine which homes will most likely have a high energy use. The results can then be mapped to quickly identify which regions and groups of people in the Puget Sound are more susceptible to high energy use based on specific variables in the data.
 
@@ -457,7 +457,6 @@ There is a wealth of energy datasets with important information waiting to be an
   4. Children
   5. Household size
 
-
 ## Appendix B: All Suggested Readings 
 
 1) [Ahn, Y., & Sohn, D. W. (2019). The effect of neighbourhood-level urban form on residential building energy use: A GIS-based model using building energy benchmarking data in Seattle. Energy and Buildings, 196, 124-133.](https://www.sciencedirect.com/science/article/pii/S0378778819306802?casa_token=IjUviYLyPZEAAAAA:ISebwB493MII1YuqcNH3YWdIOUNfNLn54hV5f7rbDFR5-Cugc8dvPdBd45kr7n391LdSzkY2xw)
@@ -470,7 +469,6 @@ There is a wealth of energy datasets with important information waiting to be an
 4) [Kontokosta, C. E., Reina, V. J., & Bonczak, B. (2020). Energy cost burdens for low-income and minority households: Evidence from energy benchmarking and audit data in five US cities. Journal of the American Planning Association, 86(1), 89-105.](https://www.tandfonline.com/doi/full/10.1080/01944363.2019.1647446)
 
 5) [McKenna, E., Richardson, I., & Thomson, M. (2012). Smart meter data: Balancing consumer privacy concerns with legitimate applications. Energy Policy, 41, 807-814.](https://www.sciencedirect.com/science/article/abs/pii/S0301421511009438?casa_token=l789RhCZXBoAAAAA:1roGNDysGtPGYRRLFUt_3h1iWGH0Lz90OcN4Q5QxqVmKvnOMSWJZx5o0agOjt0e-sqexzbmvkw)
-
 
 ## Appendix C: Additional Datasets 
 
