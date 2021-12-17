@@ -470,6 +470,7 @@ There is a wealth of energy datasets with important information waiting to be an
 
 5) [McKenna, E., Richardson, I., & Thomson, M. (2012). Smart meter data: Balancing consumer privacy concerns with legitimate applications. Energy Policy, 41, 807-814.](https://www.sciencedirect.com/science/article/abs/pii/S0301421511009438?casa_token=l789RhCZXBoAAAAA:1roGNDysGtPGYRRLFUt_3h1iWGH0Lz90OcN4Q5QxqVmKvnOMSWJZx5o0agOjt0e-sqexzbmvkw)
 
+
 ## Appendix C: Additional Datasets 
 
 1) [Duke Energy Initiative Data Resources](https://energy.duke.edu/research/energy-data/resources)
@@ -479,3 +480,9 @@ There is a wealth of energy datasets with important information waiting to be an
 3) [Seattle Building Energy Benchmarking](https://data.seattle.gov/dataset/2015-Building-Energy-Benchmarking/h7rm-fz6m/data)
 
 4) [King County Assessment Data](https://info.kingcounty.gov/assessor/DataDownload/default.aspx) 
+
+## Appendix D: Git Resources 
+
+The GitHub reposiory for this analysis can be found [here](https://github.com/fosterj3/IDL.git)
+
+Link: https://github.com/fosterj3/IDL.git
